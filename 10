@@ -1,0 +1,23 @@
+.data
+.text
+main:
+	li $v0, 5
+	syscall
+	
+	move $t0, $v0
+	
+	addi $t2, $zero, 1
+	addi $t4, $zero, 0
+	for:
+		beq $t0, $t4, print
+		addi $t3, $t1, 0
+		addi $t1, $t2, 0
+		add $t2, $t2, $t3
+		addi $t4, $t4, 1
+		j for
+	print:
+	li $v0, 1
+	addi $a0, $t1, 0
+	syscall
+	
+	

@@ -1,0 +1,77 @@
+.data
+	string: .space 100
+	str: .space 100
+	slash: .asciiz ""
+.text
+main:
+	li $v0, 8
+	la $a0, string
+	li $a1, 100
+	syscall
+
+	li $v0, 8
+	la $a0, str
+	li $a1, 100
+	syscall 
+
+	addi $t0, $zero, 0
+	stringlength:
+		lb $t2, string($t0)
+		beqz $t2, exitstring
+		addi $t0, $t0, 1
+		j stringlength
+	exitstring:
+	addi $t1, $zero, 0
+	strlength:
+		lb $t2, str($t1)
+		beqz $t2, exitstr
+		addi $t1, $t1, 1
+		j strlength
+	exitstr:
+	addi $t0, $t0, -1
+	addi $t1, $t1, -1	
+	add $t5, $t0, $t1	
+	addi $t3, $t3, 0	
+	whileout:
+		beq $t3, $t5, exit	
+		addi $t4, $t3, 0	
+		addi $t6, $zero, 0	
+		addi $s2, $zero, 0	
+		for:
+			lb $s0, string($t4)
+			lb $s1, str($t6)
+			addi $t4, $t4, 1
+			addi $t6, $t6, 1
+			bne $s0, $s1, exitfor
+			beq $t6, $t1, exitflag
+			j for  
+		exitfor:
+			addi $s2, $zero, 1
+		exitflag:
+			beq $s2, 1, flagcond
+			addi $t6, $t3, 0
+			add $t7, $t6, $t1
+		whilein:
+			lb $s3, string($t7)
+			beqz $s3, bre
+			sb $s3, string($t6)
+			addi $t6, $t6, 1
+			addi $t7, $t7, 1
+			j whilein
+		bre:
+			lb $s3, slash($zero)
+			sb $s3, string($t6) 
+			addi $t3, $t3, -1
+			sub $t0, $t0, $t2
+			sub $t5, $t5, $t2
+		flagcond:
+		addi $t3, $t3, 1
+		j whileout
+	exit:
+		li $v0, 4
+		la $a0, string
+		syscall
+		
+		li $v0, 10
+		syscall
+		

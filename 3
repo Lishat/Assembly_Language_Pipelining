@@ -1,0 +1,55 @@
+.data
+	string: .space 100
+	
+.text
+main:
+	li $v0, 8
+	la $a0, string
+	li $a1, 100
+	syscall
+	
+	addi $t0, $zero, 0
+	strlen:
+		lb $t1, string($t0)
+		beqz $t1, exitstrlen		
+		addi $t0, $t0, 1
+		j strlen
+	exitstrlen:
+	addi $t0, $t0, -1
+	addi $t1, $t0, 0			
+	while1:
+		beqz $t1, exit
+		addi $t2, $zero, 0	
+		while2:
+			add $t3, $t1, $t2	
+			bge $t3, $t0, exitwhile2
+			addi $t4, $zero, 0	
+			addi $s0, $t2, 0	
+			addi $s1, $t3, 0	
+			while3:
+				bge $s0, $s1, ewhile
+				lb $t5, string($s0)
+				lb $t6, string($s1)
+				bne $t5, $t6, exitwhile3
+				addi $s0, $s0, 1
+				addi $s1, $s1, -1
+				j while3
+			ewhile:
+			addi $t4, $zero, 1
+			exitwhile3:
+			beq $t4, 1,print
+			addi $t2, $t2, 1
+			j while2
+		exitwhile2:
+		addi $t1, $t1, -1
+		j while1
+	print:		
+		bgt $t2, $t3, exit
+		li $v0, 11
+		lb $a0, string($t2)
+		syscall
+		addi $t2, $t2, 1
+		j print
+	exit:
+		li $v0, 10
+		syscall

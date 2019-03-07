@@ -1,0 +1,77 @@
+.data
+	hyphen: .asciiz " - "
+	newLine: .asciiz "\n"
+	string: .space 100
+	mark: .word 400
+
+.text
+main:
+	li $v0, 8
+	la $a0, string
+	li $a1, 100
+	syscall
+	
+	addi $t0, $zero, 0
+	strlen:
+		lb $t1, string($t0)
+		beqz $t1, strlenexit
+		addi $t0, $t0, 1
+		j strlen
+		
+	strlenexit:
+	addi $t0, $t0, -1
+	addi $t1, $zero, 0
+	addi $t2, $zero, 0
+	addi $t7, $zero, 1
+	init:
+		beq $t1, $t0, exitinit
+		sll $t1, $t1, 2
+		sw $t2, mark($t1)
+		srl $t1, $t1, 2
+		addi $t1, $t1, 1
+		j init
+	exitinit:
+	addi $t1, $zero, 0
+	for1:
+		beq $t1, $t0, exit
+		addi $t3, $zero, 1
+		addi $t4, $t1, 1
+		for2:
+			beq $t4, $t0, exitfor
+			lb $t5, string($t1)
+			lb $t6, string($t4)
+			bne $t5, $t6, addition
+			sll $t4, $t4, 2
+			sw $t7, mark($t4)
+			addi $t3, $t3, 1
+			srl $t4, $t4, 2
+			addition:
+			addi $t4, $t4, 1
+			j for2
+		exitfor:
+		sll $t1, $t1, 2
+		lb $s0, mark($t1)
+		srl $t1, $t1, 2
+		bne $t2, $s0, ad
+		li $v0, 11
+		lb $a0, string($t1)
+		syscall
+		
+		li $v0, 4
+		la $a0, hyphen
+		syscall
+		
+		li $v0, 1
+		addi $a0, $t3, 0
+		syscall	
+		
+		li $v0, 4
+		la $a0, newLine
+		syscall	
+		ad:
+		addi $t1, $t1, 1
+		j for1
+	exit:
+		li $v0, 10
+		syscall
+		

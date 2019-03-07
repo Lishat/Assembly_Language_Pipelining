@@ -1,0 +1,91 @@
+.data
+	string1: .space 100
+	string2: .space 100
+	array: .space 100
+	b1: .asciiz "1"
+	b0: .asciiz "0"
+	printyes: .asciiz "The given strings are anagrams."
+	printno: .asciiz "The given strings are not anagrams."
+.text
+main:
+	li $v0, 8
+	la $a0, string1
+	li $a1, 100
+	syscall
+
+	li $v0, 8
+	la $a0, string2
+	li $a1, 100
+	syscall
+	addi $t0, $zero, 0
+
+	string1len:
+		lb $t2, string1($t0)
+		beqz $t2, exitstring1
+		addi $t0, $t0, 1
+		j string1len
+	exitstring1:
+	addi $t1, $zero, 0
+	string2len:
+		lb $t2, string2($t1)
+		beqz $t2, exitstring2
+		addi $t1, $t1, 1
+		j string2len
+	exitstring2:
+	addi $t0, $t0, -1
+	addi $t1, $t1, -1
+	bne $t0, $t1, print
+	addi $t2, $t2, 0
+	lb $s0, b0($zero)
+	lb $s1, b1($zero)
+	while:
+		beq $t2, $t0, exitwhile
+		sb $s0, array($t2)
+		addi $t2, $t2, 1
+		j while
+	exitwhile:
+	addi $s2, $zero, 0
+	addi $s3, $zero, 0
+	for1:
+		beq $s3, $t1, check
+		lb $t3, string1($s2)
+		lb $t4, string2($s3)
+		beq $t3, $t4, cond1
+		exitcond1:
+		addi $s3, $s3, 1
+		j for1
+	cond1:
+		lb $t5, array($s3)
+		beq $t5, $s0, cond2
+		exitcond2:
+		j exitcond1
+
+	cond2:
+		sb $s1, array($s3)
+		addi $s2, $s2, 1
+		addi $s3, $zero, -1
+		j exitcond2
+	
+	check:
+		addi $s2, $zero, 0
+	exitcheck:
+		beq $s2, $t1, printy
+		lb $t5, array($s2)
+		beq $t5, $s0, print
+		addi $s2, $s2, 1
+		j exitcheck
+	printy:	
+		li $v0, 4
+		la $a0, printyes
+		syscall
+		
+		j exit
+		
+	print:
+		li $v0, 4
+		la $a0, printno
+		syscall
+		
+	exit:
+		li $v0, 10
+		syscall		

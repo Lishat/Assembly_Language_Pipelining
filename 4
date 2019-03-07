@@ -1,0 +1,147 @@
+.data
+	string: .space 1000
+	string1: .space 1000
+	string2: .space 1000
+	b1: .asciiz "1"
+	b0: .asciiz "0"
+	space: .asciiz " "
+	newLine: .asciiz "\n"
+.text
+main:
+	li $v0, 8
+	la $a0, string
+	li $a1, 1000
+	syscall
+	
+	lb $t0, string($zero)
+	sb $t0, string1($zero)
+	
+	addi $s0, $zero, 0
+	strlen:
+		lb $t0, string($s0)
+		beqz $t0, exitstrlen
+		addi $s0, $s0, 1
+		j strlen
+	exitstrlen:
+	addi $s0, $s0, -2	
+	lb $t0, space($zero)	
+	addi $t1, $zero, 0
+	addi $t4, $t4, 1
+	load:
+		beq $t1, $s0, exitload
+		lb $t0, string($t1) 
+		lb $t2, space($zero)
+		bne $t0, $t2, loadnsp
+		addi $t3, $t1, 1
+		lb $t2, string($t3)
+		sb $t2, string1($t4)
+		addi $t4, $t4, 1	
+		loadnsp:
+		addi $t1, $t1, 1
+		j load
+	exitload:
+	addi $t5, $zero, 0 
+	initzero:
+		beq $t5, $t4, exitint
+		lb $t2, b0($zero)
+		sb $t2, string2($t5)
+		addi $t5, $t5, 1
+		j initzero
+	exitint:
+	addi $t3, $t4, -2
+	while1:
+		bltz $t3, exitwhile1
+		addi $t2, $zero, 0
+		while2:
+			bgt $t2, $t3, exitwhile2
+			lb $t5, string1($t2)
+			addi $t7, $t2, 1
+			lb $t6, string1($t7)
+			bgt $t5, $t6, swap
+			ret:
+			addi $t2, $t2, 1
+			j while2
+		exitwhile2:
+		addi $t3, $t3, -1
+		j while1 
+	
+	swap:
+		sb $t6, string1($t2)
+		sb $t5, string1($t7)
+		j ret
+	exitwhile1:
+	addi $s0, $s0, 1
+	lb $t0, space($zero)
+	addi $t1, $zero, 0
+	lb $s4, b1($zero)
+	lb $s5, b0($zero)		
+	for1:
+		lb $t3, string($zero)
+		beq $t1, $t4, exitfor1	
+		lb $t2, string1($t1)    
+		lb $s3, string2($t1)	
+		addi $t5, $zero, 0
+		bne $t3, $t2, labe	
+		bne $s3, $s5, labe
+		beq $t3, $s5, labe
+		whileee:
+			lb $s4, string($t5)
+			bgt $t5, $s0, spacee
+			beq $s4, $t0, spacee
+			beqz $s4, spacee
+			li $v0, 11
+			lb $a0, string($t5)
+			syscall
+			sb $s5, string($t5)
+			addi $t5, $t5, 1
+			j whileee
+		spacee:
+			li $v0, 4
+			la $a0, space
+			syscall 	
+		j exitfor2
+		labe:	
+		addi $t6, $zero, 0	
+		addi $t5, $t6, 1
+		for2:
+		beq $t5, $s0, exitfor2
+		lb $s2, string($t6)	
+		lb $t7, string($t5)
+		bne $t0, $s2, addition
+		bne $t2, $t7, addition
+		bne $s3, $s5, addition
+		beq $t7, $s5, addition
+		whilee:
+			lb $s4, string($t5)
+			lb $s6, newLine($zero)
+			beq $s4, $s6, spaceee
+			bgt $t5, $s0, spaceee
+			beq $s4, $t0, spaceee
+			beqz $s4, spaceee
+			li $v0, 11
+			lb $a0, string($t5)
+			syscall
+			sb $s5, string($t5)
+			addi $t5, $t5, 1
+			j whilee
+		spaceee:
+
+			li $v0, 4
+			la $a0, space
+			syscall
+		j exitfor2 
+		addition: 
+		addi $t6, $t6, 1
+		addi $t5, $t5, 1
+		j for2
+		exitfor2:
+		sb $s4, string2($t1)
+		addi $t1, $t1, 1
+		j for1
+		exitfor1:
+		li $v0, 4
+		la $a0, newLine 
+		syscall
+		
+		li $v0, 10
+		syscall
